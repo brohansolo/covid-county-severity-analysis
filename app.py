@@ -3,7 +3,7 @@ import analysis
 import streamlit as st
 
 PAGES = {
-        "Preliminary Findings": findings,
+        "Preliminary Findings": preliminary,
         "Severity Analysis": analysis
         }
 
