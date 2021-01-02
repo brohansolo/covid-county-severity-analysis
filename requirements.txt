@@ -1,0 +1,9 @@
+numpy
+pandas
+plotly
+sklearn
+kneed
+pybase64
+IPython
+ipykernel
+ipywidgets
