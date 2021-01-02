@@ -21,19 +21,22 @@ def app():
     with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
         counties = json.load(response)
 
-    covid_livedat = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv"
     s = requests.get(covid_livedat).content
     covid_dat_org = pd.read_csv(io.StringIO(s.decode('utf-8')))
 
-    covid_dat = covid_dat_org[covid_dat_org['fips'].notna()]
-    covid_dat['fips'] = covid_dat['fips'].apply(int)
-    covid_dat['fips'] = covid_dat['fips'].apply(str)
+    covid_livedat = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv"
+    s = requests.get(covid_livedat).content 
+    covid_dat = pd.read_csv(io.StringIO(s.decode('utf-8')), converters={'fips': lambda x: str(x)})
 
-    def fill_missing(series, limit):
-        series = series.astype('str')
-        series = ['0' + i if len(i) < limit else i for i in series]
-        return series
-    covid_dat['fips'] = fill_missing(covid_dat['fips'], 5)
+    # covid_dat = covid_dat_org[covid_dat_org['fips'].notna()]
+    # covid_dat['fips'] = covid_dat['fips'].apply(int)
+    # covid_dat['fips'] = covid_dat['fips'].apply(str)
+
+    # def fill_missing(series, limit):
+    #     series = series.astype('str')
+    #     series = ['0' + i if len(i) < limit else i for i in series]
+    #     return series
+    # covid_dat['fips'] = fill_missing(covid_dat['fips'], 5)
 
     covid_dat.county = covid_dat.county + " County"
     indexer = covid_dat[covid_dat.county == 'Oglala Lakota County'].index
