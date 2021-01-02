@@ -1,3 +1,5 @@
+import preliminary
+import analysis
 import streamlit as st
 
 PAGES = {
