@@ -8,3 +8,5 @@ pybase64
 IPython
 ipykernel
 ipywidgets
+requests
+io
