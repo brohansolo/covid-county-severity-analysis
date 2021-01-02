@@ -9,4 +9,3 @@ IPython
 ipykernel
 ipywidgets
 requests
-io
