@@ -63,8 +63,8 @@ def app():
 
     st.write(fig)
 
-   fig.write_html("CovidCount.html")
-   open("CovidCount.html", 'r', encoding='utf-8')
+#    fig.write_html("CovidCount.html")
+#    open("CovidCount.html", 'r', encoding='utf-8')
 
 #=============================================#
 
