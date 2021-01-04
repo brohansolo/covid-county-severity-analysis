@@ -28,9 +28,14 @@ def app():
 
     pd.options.mode.chained_assignment = None  # default='warn'
 
+    with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
+        counties = json.load(response)
+
     covid_livedat = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv"
     s = requests.get(covid_livedat).content 
     covid_dat = pd.read_csv(io.StringIO(s.decode('utf-8')), converters={'fips': lambda x: str(x)})
+
+    covid_dat.drop(covid_dat.columns[[6,7,8,9]], axis=1, inplace = True) 
 
     covid_dat.county = covid_dat.county + " County"
     indexer = covid_dat[covid_dat.county == 'Oglala Lakota County'].index
@@ -59,57 +64,57 @@ def app():
     scaled_df.set_index(['county', 'fips'], inplace = True)
 
 
-    n = 19
-    missing_dict = {'county': ["Slope County", "Billings County", "Oglala Lakota County", "Arthur County", 'McPherson County',
-                            "Doña Ana County", "Hartley County", "Loving County", "Borden County", "McMullen County",
-                            "Kenedy County", "King County", "La Salle Parish County", "Suffolk County", "Chesapeake County",
-                            "Virginia Beach County", "Newport News County", "Hampton County", "Quitman County"],
-                    'fips': [38087, 38007, 46113, 31005, 31117, 35013, 48205, 48301, 48033, 48311, 48261, 48269, 22059, 51800,
-                            51550, 51810, 51700, 51650, 13239], 
-                    'County Population':[0] * n,
-                    'Elderly Count':[0] * n,
-                    'Elderly per Capita':[0] * n,
-                    'Maskless per Capita':[0] * n,
-                    'ICU Beds':[0]*n,
-                    'Rate of Change':[0]*n,
-                    'COVID Cases':[0]*n,
-                    'COVID Deaths':[0]*n,
-                    'COVID Cases per Capita':[0] * n,
-                    'COVID Deaths per Capita':[0] * n,
-                    'Density per square mile':[0] * n} 
+    # n = 19
+    # missing_dict = {'county': ["Slope County", "Billings County", "Oglala Lakota County", "Arthur County", 'McPherson County',
+    #                         "Doña Ana County", "Hartley County", "Loving County", "Borden County", "McMullen County",
+    #                         "Kenedy County", "King County", "La Salle Parish County", "Suffolk County", "Chesapeake County",
+    #                         "Virginia Beach County", "Newport News County", "Hampton County", "Quitman County"],
+    #                 'fips': [38087, 38007, 46113, 31005, 31117, 35013, 48205, 48301, 48033, 48311, 48261, 48269, 22059, 51800,
+    #                         51550, 51810, 51700, 51650, 13239], 
+    #                 'County Population':[0] * n,
+    #                 'Elderly Count':[0] * n,
+    #                 'Elderly per Capita':[0] * n,
+    #                 'Maskless per Capita':[0] * n,
+    #                 'ICU Beds':[0]*n,
+    #                 'Rate of Change':[0]*n,
+    #                 'COVID Cases':[0]*n,
+    #                 'COVID Deaths':[0]*n,
+    #                 'COVID Cases per Capita':[0] * n,
+    #                 'COVID Deaths per Capita':[0] * n,
+    #                 'Density per square mile':[0] * n} 
 
-    missing_counties = pd.DataFrame(missing_dict)
-    missing_counties.set_index(['county', 'fips'], inplace = True)
+    # missing_counties = pd.DataFrame(missing_dict)
+    # missing_counties.set_index(['county', 'fips'], inplace = True)
 
-    scaled_df = pd.concat([scaled_df, missing_counties])
+    # scaled_df = pd.concat([scaled_df, missing_counties])
 
     columns = list(scaled_df.columns)
     my_dict = {k: v for v, k in enumerate(columns)}
 
-    def get_optimal_k(subset):
-        kmeans_kwargs = {
-        "init": "random",
-        "n_init": 10,
-        "max_iter": 300,
-        "random_state": 42 
-        }
+    # def get_optimal_k(subset):
+    #     kmeans_kwargs = {
+    #     "init": "random",
+    #     "n_init": 10,
+    #     "max_iter": 300,
+    #     "random_state": 42 
+    #     }
 
-        # A list holds the SSE values for each k
-        sse = []
-        for k in range(1, 12):
-            kmeans = KMeans(n_clusters=k, **kmeans_kwargs)
-            kmeans.fit(subset)
-            sse.append(kmeans.inertia_)
+    #     # A list holds the SSE values for each k
+    #     sse = []
+    #     for k in range(1, 12):
+    #         kmeans = KMeans(n_clusters=k, **kmeans_kwargs)
+    #         kmeans.fit(subset)
+    #         sse.append(kmeans.inertia_)
             
-        kn = KneeLocator(range(1,12), sse, curve='convex', direction='decreasing')
+    #     kn = KneeLocator(range(1,12), sse, curve='convex', direction='decreasing')
         
-    #     plt.xlabel('k')
-    #     plt.ylabel('Distortion')
-    #     plt.title('The Elbow Method showing the optimal k')
-    #     plt.plot(range(1,12), sse, 'bx-')
-    #     plt.vlines(kn.knee, plt.ylim()[0], plt.ylim()[1], linestyles='dashed', color = 'black');
+    # #     plt.xlabel('k')
+    # #     plt.ylabel('Distortion')
+    # #     plt.title('The Elbow Method showing the optimal k')
+    # #     plt.plot(range(1,12), sse, 'bx-')
+    # #     plt.vlines(kn.knee, plt.ylim()[0], plt.ylim()[1], linestyles='dashed', color = 'black');
 
-        return kn.knee
+    #     return kn.knee
 
     def rank(subset, rank_by):
         vals = subset.groupby('Cluster').mean()
@@ -117,9 +122,11 @@ def app():
         subset['Cluster'].replace(list(sorted_vals.index), list(vals.index), inplace = True)
         return subset
 
-    def highlight_cols(s):
-        color = 'red'
-        return 'background-color: %s' % color
+
+# commented by rohan
+    # def highlight_cols(s):
+    #     color = 'red'
+    #     return 'background-color: %s' % color
 
     def get_clusters(user_input, rank_by):
         
@@ -131,29 +138,33 @@ def app():
 
         
         subset = scaled_df.iloc[:,user_input]
-        merged_subset = merged_data.iloc[:,user_input]
-        optimal_k = get_optimal_k(subset)
-        kmeans=KMeans(n_clusters=int(optimal_k),random_state=1)
+    # commented by rohan
+        # merged_subset = merged_data.iloc[:,user_input]
+        # optimal_k = get_optimal_k(subset)
+        optimal_k = 4
+        # kmeans=KMeans(n_clusters=int(optimal_k),random_state=1)
+        kmeans=KMeans(n_clusters=int(optimal_k))
         kmeans.fit(subset)
         subset['Cluster'] = kmeans.labels_
         subset['Cluster'] = subset['Cluster'].astype(int) + 1
         
         subset = rank(subset, rank_by)
         
-        merged_subset['Cluster'] = subset['Cluster']
+    # commented by rohan
+        # merged_subset['Cluster'] = subset['Cluster']
         
         
-        means = merged_subset.groupby('Cluster').mean()
-        means.columns = 'Avg. ' + means.columns
+        # means = merged_subset.groupby('Cluster').mean()
+        # means.columns = 'Avg. ' + means.columns
         
-        result = means.style.applymap(highlight_cols, subset=pd.IndexSlice[:, ['Avg. ' + rank_by]])
+        # result = means.style.applymap(highlight_cols, subset=pd.IndexSlice[:, ['Avg. ' + rank_by]])
 
-        display(result)
+        # display(result)
         
-        merged_subset.reset_index(level=0, inplace = True)
-        merged_subset.reset_index(level=1, inplace = True)
+        # merged_subset.reset_index(level=0, inplace = True)
+        # merged_subset.reset_index(level=1, inplace = True)
         
-        sorted_df = merged_subset.sort_values(by = 'Cluster', ascending = False).reset_index(drop = True)
+        # sorted_df = merged_subset.sort_values(by = 'Cluster', ascending = False).reset_index(drop = True)
 
         subset.reset_index(level=0, inplace=True)
         subset.reset_index(level=0, inplace=True)
@@ -172,22 +183,20 @@ def app():
         fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
         
         
-        if optimal_k == 4:
-            fig.update_layout(coloraxis_colorbar=dict(
-            tickvals=[1,1.5,2,2.5,3,3.5,4],
-            ticktext= [1,"",2,"",3,"",4]
-            ))
-        else:
-            fig.update_layout(coloraxis_colorbar=dict(
-            tickvals=[1,1.5,2,2.5,3],
-            ticktext= [1,"",2,"",3]
-            ))
+        # if optimal_k == 4:
+        fig.update_layout(coloraxis_colorbar=dict(
+        tickvals=[1,1.5,2,2.5,3,3.5,4],
+        ticktext= [1,"",2,"",3,"",4]
+        ))
+        # else:
+            #     fig.update_layout(coloraxis_colorbar=dict(
+            #     tickvals=[1,1.5,2,2.5,3],
+            #     ticktext= [1,"",2,"",3]
+            #     ))
 
 
     #     fig.write_html("test.html")
         st.write(fig)
-        
-        
         
     user_input = st.multiselect('Select Variables to Use', columns) 
     rank_by = st.selectbox('Select Variable to Rank By', columns) 
