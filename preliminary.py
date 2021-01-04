@@ -45,7 +45,7 @@ def app():
                            hover_data = {'fips':False, 'cases':True},
                            color_continuous_scale="Inferno_r",
                            mapbox_style="carto-positron",
-                           zoom=2.8, center = {"lat": 37.0902, "lon": -95.7129},
+                           zoom=2.65, center = {"lat": 37.0902, "lon": -95.7129},
                            opacity=0.8,
                            labels={'cases':'Number of Cases'}
                           )
