@@ -36,7 +36,7 @@ def app():
     indexer = covid_dat[covid_dat.county == 'Oglala Lakota County'].index
     covid_dat.loc[indexer, 'fips'] = 46113
 
-    metrics = pd.read_csv('merged_data_final.csv', converters={'fips': lambda x: str(x)})
+    metrics = pd.read_csv('merged_data.csv', converters={'fips': lambda x: str(x)})
     merged_data = pd.merge(metrics, covid_dat, on='fips')
 
 
