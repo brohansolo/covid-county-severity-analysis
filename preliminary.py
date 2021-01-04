@@ -10,6 +10,7 @@ import plotly.express as px
 import requests
 import io
 
+
 def app():
     st.write("## Maps and Data")
 
@@ -17,13 +18,12 @@ def app():
     The data in these maps represents the factors affecting the severity fo covid-19 in different counties in the United States.
     ''')
 
-
     with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
-        counties = json.load(response)
+        global counties = json.load(response)
 
     covid_livedat = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv"
     s = requests.get(covid_livedat).content 
-    covid_dat = pd.read_csv(io.StringIO(s.decode('utf-8')), converters={'fips': lambda x: str(x)})
+    global covid_dat = pd.read_csv(io.StringIO(s.decode('utf-8')), converters={'fips': lambda x: str(x)})
 
     # covid_dat = covid_dat_org[covid_dat_org['fips'].notna()]
     # covid_dat['fips'] = covid_dat['fips'].apply(int)

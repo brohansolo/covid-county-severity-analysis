@@ -24,22 +24,24 @@ from urllib.request import urlopen
 import json
 import requests
 
+from preliminary import covid_dat, counties
+
 def app():
 
     pd.options.mode.chained_assignment = None  # default='warn'
 
-    with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
-        counties = json.load(response)
+    # with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
+    #     counties = json.load(response)
 
-    covid_livedat = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv"
-    s = requests.get(covid_livedat).content 
-    covid_dat = pd.read_csv(io.StringIO(s.decode('utf-8')), converters={'fips': lambda x: str(x)})
+    # covid_livedat = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv"
+    # s = requests.get(covid_livedat).content 
+    # covid_dat = pd.read_csv(io.StringIO(s.decode('utf-8')), converters={'fips': lambda x: str(x)})
 
-    covid_dat.drop(covid_dat.columns[[6,7,8,9]], axis=1, inplace = True) 
+    # covid_dat.drop(covid_dat.columns[[6,7,8,9]], axis=1, inplace = True) 
 
-    covid_dat.county = covid_dat.county + " County"
-    indexer = covid_dat[covid_dat.county == 'Oglala Lakota County'].index
-    covid_dat.loc[indexer, 'fips'] = 46113
+    # covid_dat.county = covid_dat.county + " County"
+    # indexer = covid_dat[covid_dat.county == 'Oglala Lakota County'].index
+    # covid_dat.loc[indexer, 'fips'] = 46113
 
     metrics = pd.read_csv('merged_data.csv', converters={'fips': lambda x: str(x)})
     merged_data = pd.merge(metrics, covid_dat, on='fips')
@@ -64,29 +66,29 @@ def app():
     scaled_df.set_index(['county', 'fips'], inplace = True)
 
 
-    # n = 19
-    # missing_dict = {'county': ["Slope County", "Billings County", "Oglala Lakota County", "Arthur County", 'McPherson County',
-    #                         "Doña Ana County", "Hartley County", "Loving County", "Borden County", "McMullen County",
-    #                         "Kenedy County", "King County", "La Salle Parish County", "Suffolk County", "Chesapeake County",
-    #                         "Virginia Beach County", "Newport News County", "Hampton County", "Quitman County"],
-    #                 'fips': [38087, 38007, 46113, 31005, 31117, 35013, 48205, 48301, 48033, 48311, 48261, 48269, 22059, 51800,
-    #                         51550, 51810, 51700, 51650, 13239], 
-    #                 'County Population':[0] * n,
-    #                 'Elderly Count':[0] * n,
-    #                 'Elderly per Capita':[0] * n,
-    #                 'Maskless per Capita':[0] * n,
-    #                 'ICU Beds':[0]*n,
-    #                 'Rate of Change':[0]*n,
-    #                 'COVID Cases':[0]*n,
-    #                 'COVID Deaths':[0]*n,
-    #                 'COVID Cases per Capita':[0] * n,
-    #                 'COVID Deaths per Capita':[0] * n,
-    #                 'Density per square mile':[0] * n} 
+    n = 19
+    missing_dict = {'county': ["Slope County", "Billings County", "Oglala Lakota County", "Arthur County", 'McPherson County',
+                            "Doña Ana County", "Hartley County", "Loving County", "Borden County", "McMullen County",
+                            "Kenedy County", "King County", "La Salle Parish County", "Suffolk County", "Chesapeake County",
+                            "Virginia Beach County", "Newport News County", "Hampton County", "Quitman County"],
+                    'fips': [38087, 38007, 46113, 31005, 31117, 35013, 48205, 48301, 48033, 48311, 48261, 48269, 22059, 51800,
+                            51550, 51810, 51700, 51650, 13239], 
+                    'County Population':[0] * n,
+                    'Elderly Count':[0] * n,
+                    'Elderly per Capita':[0] * n,
+                    'Maskless per Capita':[0] * n,
+                    'ICU Beds':[0]*n,
+                    'Rate of Change':[0]*n,
+                    'COVID Cases':[0]*n,
+                    'COVID Deaths':[0]*n,
+                    'COVID Cases per Capita':[0] * n,
+                    'COVID Deaths per Capita':[0] * n,
+                    'Density per square mile':[0] * n} 
 
-    # missing_counties = pd.DataFrame(missing_dict)
-    # missing_counties.set_index(['county', 'fips'], inplace = True)
+    missing_counties = pd.DataFrame(missing_dict)
+    missing_counties.set_index(['county', 'fips'], inplace = True)
 
-    # scaled_df = pd.concat([scaled_df, missing_counties])
+    scaled_df = pd.concat([scaled_df, missing_counties])
 
     columns = list(scaled_df.columns)
     my_dict = {k: v for v, k in enumerate(columns)}
@@ -196,7 +198,7 @@ def app():
 
 
     #     fig.write_html("test.html")
-        st.write(fig)
+        return fig
         
     user_input = st.multiselect('Select Variables to Use', columns) 
     rank_by = st.selectbox('Select Variable to Rank By', columns) 
