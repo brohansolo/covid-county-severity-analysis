@@ -43,6 +43,9 @@ def app():
     merged_data['COVID Cases per Capita'] = merged_data['cases'] / merged_data['County Population']
     merged_data['COVID Deaths per Capita'] = merged_data['deaths'] / merged_data['County Population']
 
+    merged_data.rename(columns = {'cases':'COVID Cases', 'deaths':'COVID Deaths', 'Total Elderly Count':'Elderly Count'}, inplace = True)
+    merged_data.set_index(['county', 'fips', 'state', 'date'], inplace = True)
+
     norm=MinMaxScaler()
     scaled=norm.fit_transform(merged_data)
     scaled_df=pd.DataFrame(scaled,columns=merged_data.columns,index=merged_data.index)
