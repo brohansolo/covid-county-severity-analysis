@@ -19,11 +19,13 @@ def app():
     ''')
 
     with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
-        global counties = json.load(response)
+        counties = json.load(response)
 
     covid_livedat = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv"
     s = requests.get(covid_livedat).content 
-    global covid_dat = pd.read_csv(io.StringIO(s.decode('utf-8')), converters={'fips': lambda x: str(x)})
+    covid_dat = pd.read_csv(io.StringIO(s.decode('utf-8')), converters={'fips': lambda x: str(x)})
+
+    covid_dat.drop(covid_dat.columns[[6,7,8,9]], axis=1, inplace = True) 
 
     # covid_dat = covid_dat_org[covid_dat_org['fips'].notna()]
     # covid_dat['fips'] = covid_dat['fips'].apply(int)
@@ -66,7 +68,7 @@ def app():
 #=============================================#
 
 
-    st.subheader('Number of Elderly Count Per Count') 
+    st.subheader('Number of Elderly Count Per County') 
     elderly_count = open("ElderlyCount.html", 'r', encoding='utf-8')
     elderly_count_code = elderly_count.read()
     components.html(elderly_count_code , height=550)

@@ -9,39 +9,38 @@ import numpy as np
 # import matplotlib.pyplot as plt
 # %matplotlib inline 
 from sklearn.cluster import KMeans
-from sklearn import datasets
+# from sklearn import datasets
 from kneed import KneeLocator
 import base64
-from ipywidgets import HTML, interact, interactive, fixed, interact_manual, widgets, IntProgress, AppLayout, Button, Layout
+# from ipywidgets import HTML, interact, interactive, fixed, interact_manual, widgets, IntProgress, AppLayout, Button, Layout
 # from contextlib import contextmanager
 
-from IPython.display import display, HTML, Image, clear_output, Markdown
+# from IPython.display import display, HTML, Image, clear_output, Markdown
 import plotly.express as px
 # import time
-import ipywidgets as widgets
+# import ipywidgets as widgets
 from sklearn.preprocessing import MinMaxScaler
 from urllib.request import urlopen
 import json
 import requests
 
-from preliminary import covid_dat, counties
 
 def app():
 
     pd.options.mode.chained_assignment = None  # default='warn'
 
-    # with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
-    #     counties = json.load(response)
+    with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
+        counties = json.load(response)
 
-    # covid_livedat = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv"
-    # s = requests.get(covid_livedat).content 
-    # covid_dat = pd.read_csv(io.StringIO(s.decode('utf-8')), converters={'fips': lambda x: str(x)})
+    covid_livedat = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/live/us-counties.csv"
+    s = requests.get(covid_livedat).content 
+    covid_dat = pd.read_csv(io.StringIO(s.decode('utf-8')), converters={'fips': lambda x: str(x)})
 
-    # covid_dat.drop(covid_dat.columns[[6,7,8,9]], axis=1, inplace = True) 
+    covid_dat.drop(covid_dat.columns[[6,7,8,9]], axis=1, inplace = True) 
 
-    # covid_dat.county = covid_dat.county + " County"
-    # indexer = covid_dat[covid_dat.county == 'Oglala Lakota County'].index
-    # covid_dat.loc[indexer, 'fips'] = 46113
+    covid_dat.county = covid_dat.county + " County"
+    indexer = covid_dat[covid_dat.county == 'Oglala Lakota County'].index
+    covid_dat.loc[indexer, 'fips'] = 46113
 
     metrics = pd.read_csv('merged_data.csv', converters={'fips': lambda x: str(x)})
     merged_data = pd.merge(metrics, covid_dat, on='fips')
@@ -201,7 +200,7 @@ def app():
         return fig
         
     user_input = st.multiselect('Select Variables to Use', columns) 
-    rank_by = st.selectbox('Select Variable to Rank By', columns) 
+    rank_by = st.selectbox('Choose your metric of Severity', columns) 
 
     if st.button('Submit', key = '1'): 
         st.write(get_clusters(user_input, rank_by), use_column_width = True) 
