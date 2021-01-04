@@ -175,7 +175,7 @@ def app():
         fig = px.choropleth_mapbox(subset, geojson=counties, locations='fips', color= 'Cluster',
                             color_continuous_scale="Plasma_r",
                             hover_name = 'county',
-                            hover_data = {'fips':False, 'Cluster': True},
+                            hover_data = {'fips':False, 'Cluster': True, rank_by: True},
                             mapbox_style="carto-positron",
                             zoom=2.8, center = {"lat": 37.0902, "lon": -95.7129},
                             opacity=0.8,
